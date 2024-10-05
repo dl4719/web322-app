@@ -1,0 +1,30 @@
+{
+  "name": "web322-app",
+  "version": "1.0.0",
+  "description": "This is an eCommerce web app",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dl4719/WEB322.git"
+  },
+  "keywords": [
+    "node",
+    "html",
+    "css",
+    "js",
+    "express"
+  ],
+  "author": "Daniel Lu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dl4719/WEB322/issues"
+  },
+  "homepage": "https://github.com/dl4719/WEB322#readme",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
