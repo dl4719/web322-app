@@ -8,14 +8,6 @@ const path = require('path');
 
 app.use(express.static('public'));
 
-/// 404 Error handler
-app.use((req, res, next) => {
-    res.status(404).send("404 - We're unable to find what you're looking for...");
-})
-
-
-app.listen(HTTP_PORT, () => console.log(`Express http server listening on: ${HTTP_PORT}`));
-
 
 /// Redirects the user to the About page.
 app.get('/', (req, res) => {
@@ -51,4 +43,15 @@ app.get('/categories', (req, res) => {
 
 });
 
+/// 404 Error handler
+app.use((req, res, next) => {
+    res.status(404).send("404 - We're unable to find what you're looking for...");
+})
 
+services.initialize()
+    .then(() => {
+        app.listen(HTTP_PORT, () => console.log(`Express http server listening on: ${HTTP_PORT}`));
+    })
+    .catch((err) => {
+        console.error(`An error has occurred: ${err}`);
+    })
