@@ -1,31 +1,30 @@
 const fs = require('fs');
 const path = require('path');
 
-
 let items = [];
-
 let categories = [];
 
-
-function initialize(){
-    
+function initialize() {
     return new Promise ((resolve, reject) => {
-        fs.readFile(path.join(__dirname, '/data/items.json'), 'utf-8', (err, data) => {
+        fs.readFile('./data/items.json', 'utf8', (err, data) => {
             if (err){
                 reject(err);
             }
             else {
                 items = JSON.parse(data);
+                //console.log(items);
+                
             }
 
         });
 
-        fs.readFile(path.join(__dirname, '/data/categories.json'), 'utf-8', (err, data) => {
+        fs.readFile('./data/categories.json', 'utf8', (err, data) => {
             if (err){
                 reject(err);
             }
             else {
                 categories = JSON.parse(data);
+                console.log(categories);
             }
 
         });
@@ -37,7 +36,7 @@ function initialize(){
 
 function getAllItems(){
     return new Promise ((resolve, reject) => {
-        if (items.length === 0){
+        if (items.length < 1){
             reject('No data found in items file.');
         }
         else {
@@ -50,7 +49,7 @@ function getPublishedItems() {
     return new Promise ((resolve, reject) => {
         let publishedList = items.filter(product => product.published === true);
 
-        if (publishedList.length === 0){
+        if (publishedList.length < 1){
             reject('No published products were found.');
         }
         else {
@@ -62,7 +61,7 @@ function getPublishedItems() {
 
 function getCategories() {
     return new Promise ((resolve, reject) => {
-        if (categories.length === 0){
+        if (categories.length < 1){
             reject('No data found in categories file.');
         }
         else {
