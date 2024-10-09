@@ -11,6 +11,15 @@ services.initialize()
     .then(() => {
         app.listen(HTTP_PORT, () => console.log(`Express http server listening on: ${HTTP_PORT}`));
     })
+    .then(() => {
+        services.getAllItems()
+            .then(() => {
+            services.getPublishedItems();
+        })
+    })
+    .then (() => {
+        services.getCategories();
+    })
     .catch((err) => {
         console.error(`An error has occurred: ${err}`);
     });
@@ -21,13 +30,11 @@ app.get('/', (req, res) => {
 
 });
 
-
 /// Shop page
 app.get('/shop', (req, res) => {
     res.sendFile(path.join(__dirname, '/views/shop.html'));
     
 });
-
 
 /// About page
 app.get('/about', (req, res) => {
@@ -35,36 +42,17 @@ app.get('/about', (req, res) => {
 
 });
 
-
 /// Items page
-services.getAllItems()
-    .then(() => {
-        services.getPublishedItems();
-    })
-    .then(() => {
-        app.get('/items', (req, res) => {
-            res.sendFile(path.join(__dirname, '/views/items.html'));
-        
-        });
-    })
-    .catch((err) => {
-        console.error(`An error has occurred: ${err}`);
-    })
+app.get('/items', (req, res) => {
+    res.sendFile(path.join(__dirname, '/views/items.html'));
 
-
+});
 
 /// Categories page
-services.getCategories()
-    .then(() => {
-        app.get('/categories', (req, res) => {
-            res.sendFile(path.join(__dirname, '/views/categories.html'));
-        
-        });
-    })
-    .catch((err) => {
-        console.error(`An error has occurred: ${err}`);
-    })
+app.get('/categories', (req, res) => {
+    res.sendFile(path.join(__dirname, '/views/categories.html'));
 
+});
 
 /// 404 Error handler
 app.use((req, res, next) => {
