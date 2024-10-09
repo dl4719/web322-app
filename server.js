@@ -1,5 +1,3 @@
-
-
 let services = require('./store-services.js');
 
 const express = require('express');
@@ -12,6 +10,10 @@ app.use(express.static('public'));
 services.initialize()
     .then(() => {
         app.listen(HTTP_PORT, () => console.log(`Express http server listening on: ${HTTP_PORT}`));
+        return services.getAllItems();
+    })
+    .then(() => {
+        return services.getCategories();
     })
     .catch((err) => {
         console.error(`An error has occurred: ${err}`);

@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 
 let items = [];
 let categories = [];
@@ -15,25 +14,21 @@ function initialize() {
                 //console.log(items);
                 
             }
-
+            fs.readFile('./data/categories.json', 'utf8', (err, data) => {
+                if (err){
+                    reject(err);
+                }
+                else {
+                    categories = JSON.parse(data);
+                    console.log(categories);
+                }
+                resolve (items, categories);
+            });
         });
-
-        fs.readFile('./data/categories.json', 'utf8', (err, data) => {
-            if (err){
-                reject(err);
-            }
-            else {
-                categories = JSON.parse(data);
-                console.log(categories);
-            }
-
-        });
-
-        resolve ("Both JSON files are successfully read and entered into their respective arrays.");
     });
-
 }
 
+console.log(categories);
 function getAllItems(){
     return new Promise ((resolve, reject) => {
         if (items.length < 1){
