@@ -27,8 +27,6 @@ function initialize() {
         });
     });
 }
-
-console.log(categories);
 function getAllItems(){
     return new Promise ((resolve, reject) => {
         if (items.length < 1){
