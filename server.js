@@ -54,6 +54,12 @@ app.get('/categories', (req, res) => {
 
 });
 
+/// Add item page
+app.get('/items/add', (req, res) => {
+    res.sendFile(path.join(__dirname, '/views/addItem.html'));
+    
+});
+
 /// 404 Error handler
 app.use((req, res, next) => {
     res.status(404).send("404 - We're unable to find what you're looking for...");
