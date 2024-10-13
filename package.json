@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/dl4719/WEB322#readme",
   "dependencies": {
-    "express": "^4.21.0"
+    "cloudinary": "^2.5.1",
+    "express": "^4.21.1"
   }
 }
