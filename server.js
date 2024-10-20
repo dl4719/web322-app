@@ -1,9 +1,21 @@
 let services = require('./store-services.js');
 
 const express = require('express');
+const multer = require('multer');
+const streamifier = require('streamifier');
 const app = express();
 const HTTP_PORT = process.env.PORT || 8080;
 const path = require('path');
+
+const upload = multer(); // no { storage: storage } since we are not using disk storage
+
+const cloudinary = require('cloudinary').v2;
+cloudinary.config({
+    cloud_name: 'davd2bevq',
+    api_key: '572934367661218',
+    api_secret: 'rs5kJAL16dF7Lbe1PXceDURw-jI',
+    secure: true
+});
 
 app.use(express.static('public'));
 
@@ -57,6 +69,51 @@ app.get('/categories', (req, res) => {
 /// Add item page
 app.get('/items/add', (req, res) => {
     res.sendFile(path.join(__dirname, '/views/addItem.html'));
+    
+});
+
+/// Post
+app.post('/items/add', upload.single("featureImage"), (req, res) => {
+    if(req.file){
+        let streamUpload = (req) => {
+            return new Promise((resolve, reject) => {
+                let stream = cloudinary.uploader.upload_stream(
+                    (error, result) => {
+                        if (result) {
+                            resolve(result);
+                        } else {
+                            reject(error);
+                        }
+                    }
+                );
+
+                streamifier.createReadStream(req.file.buffer).pipe(stream);
+            });
+        };
+
+        async function upload(req) {
+            let result = await streamUpload(req);
+            console.log(result);
+            return result;
+        }
+
+        upload(req).then((uploaded)=>{
+            processItem(uploaded.url);
+        });
+    }else{
+        processItem("");
+    }
+    function processItem(imageUrl){
+        req.body.featureImage = imageUrl;
+        
+        services.addItem(req.body)
+        .then((newItem) => {
+            res.redirect('/items');
+        })
+        .catch((err) => {
+            console.log('An error has occurred when adding an item to the list.\nError msg: ', err);
+        });
+    }
     
 });
 

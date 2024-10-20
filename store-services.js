@@ -64,4 +64,23 @@ function getCategories() {
     });
 }
 
-module.exports = {initialize, getAllItems, getPublishedItems, getCategories};
+function addItem(itemData) 
+{
+    return new Promise ((resolve, reject) => {
+        if (itemData.published === undefined){
+            itemData.published = false;
+            reject(err);
+        }
+        else {
+            itemData.published = true;
+        }
+
+        itemData.id = itemData.length + 1;
+        items.push(itemData);
+
+        resolve(itemData);
+
+    });
+}
+
+module.exports = {initialize, getAllItems, getPublishedItems, getCategories, addItem};
