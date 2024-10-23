@@ -48,7 +48,7 @@ function getPublishedItems() {
         }
         else {
             resolve(publishedList);
-
+            
         }
     });
 }
@@ -62,6 +62,71 @@ function getCategories() {
             resolve(categories);
         }
     });
+}
+
+function getItemsByCategory(categoryNum)
+{
+    let itemCategoryList = [];
+
+    return new Promise ((resolve, reject) => {
+        if (categoryNum < 1 || categoryNum > categories.length){
+            reject('This category does not exist in our files. Search for another category.');
+        }
+        else {
+            itemCategoryList = items.filter(itemCat => itemCat.category === categoryNum);
+            
+            if (itemCategoryList.length > 0){
+                console.log("An array of the filtered category number was successfully created.");
+                resolve(itemCategoryList);
+            }
+            else {
+                reject(`No items were found in category #${categoryNum}`);
+            }
+        }
+    });
+}
+
+function getItemsByMinDate(minDateStr)
+{
+    let itemPostDateList = [];
+
+    return new Promise ((resolve, reject) => {
+        for (let i = 0; i < items.length; i++) {
+            if(new Date(items[i].postDate) >= new Date(minDateStr)){
+                console.log(`The postDate value is greater than minDateStr: ${items[i].postDate}`);
+                itemPostDateList.push(items[i]);
+            }
+            else {
+                console.log(`The postDate value is less than minDateStr: ${items[i].postDate}`);
+            }
+        }
+
+        if (itemPostDateList.length < 1) {
+            console.error(`There is no item that has been posted for ${minDatestr}`);
+            reject(itemPostDateList);
+        }
+
+        resolve(itemPostDateList);
+        
+    });
+
+}
+
+function getItemById(id)
+{
+    let uniqueItem = items.filter(specialItem => specialItem.id === id);
+
+    return new Promise ((resolve, reject) => {
+        if (uniqueItem) {
+            console.log(`The item with the unique id: ${id} was found.`);
+            resolve(uniqueItem);
+        }
+        else {
+            console.error(`The item with the unique id: ${id} could not be found. Try another product ID.`);
+            reject(uniqueItem);
+        }
+    });
+
 }
 
 function addItem(itemData) 
@@ -83,4 +148,4 @@ function addItem(itemData)
     });
 }
 
-module.exports = {initialize, getAllItems, getPublishedItems, getCategories, addItem};
+module.exports = {initialize, getAllItems, getPublishedItems, getCategories, getItemsByCategory, getItemsByMinDate, getItemById, addItem};

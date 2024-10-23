@@ -6,6 +6,7 @@ const streamifier = require('streamifier');
 const app = express();
 const HTTP_PORT = process.env.PORT || 8080;
 const path = require('path');
+const { NOTIMP } = require('dns');
 
 const upload = multer(); // no { storage: storage } since we are not using disk storage
 
@@ -44,7 +45,13 @@ app.get('/', (req, res) => {
 
 /// Shop page
 app.get('/shop', (req, res) => {
-    res.sendFile(path.join(__dirname, '/views/shop.html'));
+    services.getPublishedItems()
+        .then((publishedList) => {
+            res.json(publishedList);
+        })
+        .catch((err) => {
+            console.error(`An error has occurred: ${err}`);
+        });
     
 });
 
@@ -56,13 +63,59 @@ app.get('/about', (req, res) => {
 
 /// Items page
 app.get('/items', (req, res) => {
-    res.sendFile(path.join(__dirname, '/views/items.html'));
+    let categoryNum = parseInt(req.query.category);
+    let postedDate = req.query.minDate;
 
+    if (categoryNum) {
+        services.getItemsByCategory(categoryNum)
+            .then((filteredList) => {
+                res.json(filteredList);
+            })
+            .catch((err) => {
+                console.error(`An error has occurred: ${err}`);
+            });
+    }
+    else if (postedDate) {
+        services.getItemsByMinDate(postedDate)
+            .then((filteredPosts) => {
+                res.json(filteredPosts);
+            })
+            .catch((err) => {
+                console.error(`An error has occurred: ${err}`);
+            });
+    }
+    else {
+    services.getAllItems()
+        .then((itemList) => {
+        res.json(itemList);
+        })
+        .catch((err) => {
+        console.error(`An error has occurred: ${err}`);
+        });
+    }
 });
+
+app.get('/item/:value', (req, res) => {
+    let requestedProductID = parseInt (req.params.value);
+
+    services.getItemById(requestedProductID)
+        .then((requestedItem) => {
+            res.send(requestedItem);
+        })
+        .catch((err) => {
+            console.error(`An error has occurred: ${err}`);
+        });
+})
 
 /// Categories page
 app.get('/categories', (req, res) => {
-    res.sendFile(path.join(__dirname, '/views/categories.html'));
+    services.getCategories()
+        .then((categoryList) => {
+            res.json(categoryList);
+        })
+        .catch((err) => {
+            console.error(`An error has occurred: ${err}`);
+        });
 
 });
 
@@ -72,7 +125,7 @@ app.get('/items/add', (req, res) => {
     
 });
 
-/// Post
+/// Post item
 app.post('/items/add', upload.single("featureImage"), (req, res) => {
     if(req.file){
         let streamUpload = (req) => {
