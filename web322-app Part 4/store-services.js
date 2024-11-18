@@ -131,6 +131,7 @@ function getItemById(id)
 
 function addItem(itemData) 
 {
+    let currentDate, formattedDate;
     return new Promise ((resolve, reject) => {
         if (itemData.published === undefined){
             itemData.published = false;
@@ -138,6 +139,9 @@ function addItem(itemData)
         }
         else {
             itemData.published = true;
+            currentDate = new Date();
+            formattedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`;
+            itemData.postDate = formattedDate;
         }
 
         itemData.id = itemData.length + 1;

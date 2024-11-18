@@ -141,6 +141,57 @@ app.get("/shop", async (req, res) => {
     res.render("shop", { data: viewData });
   });
 
+  
+app.get('/shop/:id', async (req, res) => {
+
+    // Declare an object to store properties for the view
+    let viewData = {};
+  
+    try{
+  
+        // declare empty array to hold "item" objects
+        let items = [];
+  
+        // if there's a "category" query, filter the returned items by category
+        if(req.query.category){
+            // Obtain the published "items" by category
+            items = await itemData.getPublishedItemsByCategory(req.query.category);
+        }else{
+            // Obtain the published "items"
+            items = await itemData.getPublishedItems();
+        }
+  
+        // sort the published items by itemDate
+        items.sort((a,b) => new Date(b.itemDate) - new Date(a.itemDate));
+  
+        // store the "items" and "item" data in the viewData object (to be passed to the view)
+        viewData.items = items;
+  
+    }catch(err){
+        viewData.message = "no results";
+    }
+  
+    try{
+        // Obtain the item by "id"
+        viewData.item = await itemData.getItemById(req.params.id);
+    }catch(err){
+        viewData.message = "no results"; 
+    }
+  
+    try{
+        // Obtain the full list of "categories"
+        let categories = await itemData.getCategories();
+  
+        // store the "categories" data in the viewData object (to be passed to the view)
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = "no results"
+    }
+  
+    // render the "shop" view with all of the data (viewData)
+    res.render("shop", {data: viewData})
+  });
+
 /// About page
 app.get('/about', (req, res) => {
     res.render('about');
