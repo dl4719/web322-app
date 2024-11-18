@@ -91,7 +91,7 @@ services.initialize()
 
 /// Redirects the user to the About page.
 app.get('/', (req, res) => {
-    res.redirect("/about");
+    res.redirect("/shop");
 
 });
 
