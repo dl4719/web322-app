@@ -155,7 +155,7 @@ function addItem(itemData)
 function getPublishedItemsByCategory(categoryNum)
 {
     return new Promise ((resolve, reject) => {
-        let publishedCategory = items.filter(product => product.published === true && product.category === categoryNum);
+        let publishedCategory = items.filter(product => product.published === true && product.category && product.category === categoryNum);
 
         if (publishedCategory.length < 1){
             reject('No published products were found.');
