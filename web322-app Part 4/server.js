@@ -61,51 +61,53 @@ app.get('/', (req, res) => {
 
 /// Shop page
 
+
 app.get("/shop", async (req, res) => {
     // Declare an object to store properties for the view
-  let viewData = {};
-
-  try {
-    // declare empty array to hold "item" objects
-    let items = [];
-
-    // if there's a "category" query, filter the returned items by category
-    if (req.query.category) {
-      // Obtain the published "item" by category
-      items = await services.getPublishedItemsByCategory(req.query.category);
-    } else {
-      // Obtain the published "items"
-      items = await services.getPublishedItems();
-    }
-
-    // sort the published items by itemDate
-    items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
-
-    // get the latest item from the front of the list (element 0)
-    let item = items[0];
-
-    // store the "items" and "item" data in the viewData object (to be passed to the view)
-    viewData.items = items;
-    viewData.item = item;
-  } catch (err) {
-    viewData.message = "no results";
-  }
-
-  try {
-    // Obtain the full list of "categories"
-    let categories = await services.getCategories();
-
-    // store the "categories" data in the viewData object (to be passed to the view)
-    viewData.categories = categories;
-  } catch (err) {
-    viewData.categoriesMessage = "no results";
-  }
-
-  // render the "shop" view with all of the data (viewData)
-  res.render("shop", { data: viewData });
-});
-
+    let viewData = {};
   
+    try {
+      // declare empty array to hold "item" objects
+      let items = [];
+  
+      // if there's a "category" query, filter the returned items by category
+      if (req.query.category) {
+        // Obtain the published "item" by category
+        items = await services.getPublishedItemsByCategory(req.query.category);
+      } else {
+        // Obtain the published "items"
+        items = await services.getPublishedItems();
+      }
+  
+      // sort the published items by itemDate
+      items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
+  
+      // get the latest item from the front of the list (element 0)
+      let item = items[0];
+  
+      // store the "items" and "item" data in the viewData object (to be passed to the view)
+      viewData.items = items;
+      viewData.item = item;
+    } catch (err) {
+      viewData.message = "no results";
+    }
+  
+    try {
+      // Obtain the full list of "categories"
+      let categories = await services.getCategories();
+  
+      // store the "categories" data in the viewData object (to be passed to the view)
+      viewData.categories = categories;
+    } catch (err) {
+      viewData.categoriesMessage = "no results";
+    }
+  
+    // render the "shop" view with all of the data (viewData)
+    console.log(viewData.categories);
+    console.log(viewData.items);
+    console.log(viewData.item);
+    res.render("shop", { data: viewData });
+  });
 
 app.get('/shop/:id', async (req, res) => {
 
@@ -120,7 +122,7 @@ app.get('/shop/:id', async (req, res) => {
         // if there's a "category" query, filter the returned items by category
         if(req.query.category){
             // Obtain the published "items" by category
-            items = await services.getPublishedItemsByCategory(req.query.category);
+            items = await services.getPublishedItemsByCategory(parseInt(req.query.category));
         }else{
             // Obtain the published "items"
             items = await services.getPublishedItems();
@@ -138,7 +140,7 @@ app.get('/shop/:id', async (req, res) => {
   
     try{
         // Obtain the item by "id"
-        viewData.item = await services.getItemById(req.params.id);
+        viewData.item = await services.getItemById(parseInt(req.params.id));
     }catch(err){
         viewData.message = "no results"; 
     }
@@ -154,6 +156,9 @@ app.get('/shop/:id', async (req, res) => {
     }
   
     // render the "shop" view with all of the data (viewData)
+    console.log(viewData.categories);
+    console.log(viewData.items);
+    console.log(viewData.item);
     res.render("shop", {data: viewData})
   });
 
@@ -197,12 +202,12 @@ app.get('/items', (req, res) => {
     }
 });
 
-app.get('/item/:value', (req, res) => {
+app.get('/item/value', (req, res) => {
     let requestedProductID = parseInt (req.params.value);
 
     services.getItemById(requestedProductID)
         .then((requestedItem) => {
-            res.send(requestedItem);
+            res.render(requestedItem);
         })
         .catch((err) => {
             console.error(`An error has occurred: ${err}`);
