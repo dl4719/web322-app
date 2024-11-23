@@ -101,13 +101,13 @@ app.get("/shop", async (req, res) => {
     }
   
     // render the "shop" view with all of the data (viewData)
-    console.log(viewData.categories);
-    console.log(viewData.items);
-    console.log(viewData.item);
+    // console.log(viewData.categories);
+    // console.log(viewData.items);
+    // console.log(viewData.item);
     res.render("shop", { data: viewData });
   });
 
-app.get('/shop/:id', async (req, res) => {
+  app.get('/shop/:id', async (req, res) => {
 
     // Declare an object to store properties for the view
     let viewData = {};
@@ -117,20 +117,21 @@ app.get('/shop/:id', async (req, res) => {
         // declare empty array to hold "item" objects
         let items = [];
   
-        // if there's a "category" query, filter the returned items by category
+        // if there's a "category" query, filter the returned posts by category
         if(req.query.category){
-            // Obtain the published "items" by category
-            items = await services.getPublishedItemsByCategory(parseInt(req.query.category));
+            // Obtain the published "posts" by category
+            items = await services.getPublishedItemsByCategory(req.query.category);
         }else{
-            // Obtain the published "items"
+            // Obtain the published "posts"
             items = await services.getPublishedItems();
         }
   
-        // sort the published items by itemDate
-        items.sort((a,b) => new Date(b.itemDate) - new Date(a.itemDate));
+        // sort the published items by postDate
+        items.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
   
         // store the "items" and "item" data in the viewData object (to be passed to the view)
         viewData.items = items;
+        
   
     }catch(err){
         viewData.message = "no results";
@@ -138,7 +139,7 @@ app.get('/shop/:id', async (req, res) => {
   
     try{
         // Obtain the item by "id"
-        viewData.item = await services.getItemById(parseInt(req.params.id));
+        viewData.item = await services.getItemByID(req.params.id);
     }catch(err){
         viewData.message = "no results"; 
     }
@@ -152,12 +153,10 @@ app.get('/shop/:id', async (req, res) => {
     }catch(err){
         viewData.categoriesMessage = "no results"
     }
-  
+   
     // render the "shop" view with all of the data (viewData)
-    console.log(viewData.categories);
-    console.log(viewData.items);
-    console.log(viewData.item);
     res.render("shop", {data: viewData})
+    
   });
 
 /// About page
