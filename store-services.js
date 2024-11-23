@@ -1,9 +1,118 @@
 const fs = require('fs');
 const path = require('path');
 
-let items = [];
-let categories = [];
+// let items = [];
+// let categories = [];
+[
+    {
+       "id":1,
+       "category":1,
+       "postDate":"2023-05-14",
+       "featureImage":"https://dummyimage.com/200x200/000/fff",
+       "price":9.99,
+       "title":"Lawnmower",
+       "body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis fringilla sem efficitur congue. Vestibulum efficitur blandit ultricies. Sed tempus mollis orci id facilisis. Aliquam placerat, ipsum eget egestas malesuada, neque nunc scelerisque felis, ut egestas turpis augue ut nisi. Curabitur vel convallis augue.",
+       "published":true
+    },
+    {
+       "id":2,
+       "category":1,
+       "postDate":"2023-05-15",
+       "featureImage":"https://dummyimage.com/200x200/000/fff",
+       "price":19.99,
+       "title":"Weber BBQ",
+       "body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis fringilla sem efficitur congue. Vestibulum efficitur blandit ultricies. Sed tempus mollis orci id facilisis. Aliquam placerat, ipsum eget egestas malesuada, neque nunc scelerisque felis, ut egestas turpis augue ut nisi. Curabitur vel convallis augue.",
+       "published":true
+    },
+    {
+       "id":3,
+       "category":2,
+       "postDate":"2023-05-16",
+       "featureImage":"https://dummyimage.com/200x200/000/fff",
+       "price":439.99,
+       "title":"PS5",
+       "body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis fringilla sem efficitur congue. Vestibulum efficitur blandit ultricies. Sed tempus mollis orci id facilisis. Aliquam placerat, ipsum eget egestas malesuada, neque nunc scelerisque felis, ut egestas turpis augue ut nisi. Curabitur vel convallis augue.",
+       "published":true
+    },
+    {
+       "id":4,
+       "category":2,
+       "postDate":"2023-05-17",
+       "featureImage":"https://dummyimage.com/200x200/000/fff",
+       "price":459.99,
+       "title":"XBOX",
+       "body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis fringilla sem efficitur congue. Vestibulum efficitur blandit ultricies. Sed tempus mollis orci id facilisis. Aliquam placerat, ipsum eget egestas malesuada, neque nunc scelerisque felis, ut egestas turpis augue ut nisi. Curabitur vel convallis augue.",
+       "published":true
+    },
+    {
+       "id":5,
+       "category":3,
+       "postDate":"2023-05-18",
+       "featureImage":"https://dummyimage.com/200x200/000/fff",
+       "price":39.99,
+       "title":"TShirt",
+       "body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis fringilla sem efficitur congue. Vestibulum efficitur blandit ultricies. Sed tempus mollis orci id facilisis. Aliquam placerat, ipsum eget egestas malesuada, neque nunc scelerisque felis, ut egestas turpis augue ut nisi. Curabitur vel convallis augue.",
+       "published":true
+    },
+    {
+       "id":6,
+       "category":3,
+       "postDate":"2023-05-19",
+       "featureImage":"https://dummyimage.com/200x200/000/fff",
+       "price":29.99,
+       "title":"Shorts",
+       "body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis fringilla sem efficitur congue. Vestibulum efficitur blandit ultricies. Sed tempus mollis orci id facilisis. Aliquam placerat, ipsum eget egestas malesuada, neque nunc scelerisque felis, ut egestas turpis augue ut nisi. Curabitur vel convallis augue.",
+       "published":true
+    },
+    {
+       "id":7,
+       "category":4,
+       "postDate":"2023-05-20",
+       "featureImage":"https://dummyimage.com/200x200/000/fff",
+       "price":19.99,
+       "title":"Baseball",
+       "body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis fringilla sem efficitur congue. Vestibulum efficitur blandit ultricies. Sed tempus mollis orci id facilisis. Aliquam placerat, ipsum eget egestas malesuada, neque nunc scelerisque felis, ut egestas turpis augue ut nisi. Curabitur vel convallis augue.",
+       "published":true
+    },
+    {
+       "id":8,
+       "category":4,
+       "postDate":"2023-05-21",
+       "featureImage":"https://dummyimage.com/200x200/000/fff",
+       "price":99.99,
+       "title":"Soccer Ball",
+       "body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis fringilla sem efficitur congue. Vestibulum efficitur blandit ultricies. Sed tempus mollis orci id facilisis. Aliquam placerat, ipsum eget egestas malesuada, neque nunc scelerisque felis, ut egestas turpis augue ut nisi. Curabitur vel convallis augue.",
+       "published":true
+    },
+    {
+       "id":9,
+       "category":5,
+       "postDate":"2023-05-16",
+       "featureImage":"https://dummyimage.com/200x200/000/fff",
+       "price":99.99,
+       "title":"Dog Food",
+       "body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis fringilla sem efficitur congue. Vestibulum efficitur blandit ultricies. Sed tempus mollis orci id facilisis. Aliquam placerat, ipsum eget egestas malesuada, neque nunc scelerisque felis, ut egestas turpis augue ut nisi. Curabitur vel convallis augue.",
+       "published":true
+    },
+    {
+       "id":10,
+       "category":5,
+       "postDate":"2023-05-16",
+       "featureImage":"https://dummyimage.com/200x200/000/fff",
+       "price":9.99,
+       "title":"Fish Food",
+       "body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis fringilla sem efficitur congue. Vestibulum efficitur blandit ultricies. Sed tempus mollis orci id facilisis. Aliquam placerat, ipsum eget egestas malesuada, neque nunc scelerisque felis, ut egestas turpis augue ut nisi. Curabitur vel convallis augue.",
+       "published":true
+    }
+ ];
 
+ let categories = [
+    { id: 1, name: 'Home, Garden' },
+    { id: 2, name: 'Electronics, Computers, Video Games' },
+    { id: 3, name: 'Clothing' },
+    { id: 4, name: 'Sports & Outdoors' },
+    { id: 5, name: 'Pets' }
+];
 function initialize() {
     return new Promise ((resolve, reject) => {
         let itemsPath = path.join(__dirname, '/data/items.json');
@@ -28,6 +137,8 @@ function initialize() {
         });
     });
 }
+
+
 function getAllItems(){
     return new Promise ((resolve, reject) => {
         if (items.length < 1){
@@ -41,7 +152,7 @@ function getAllItems(){
 
 function getPublishedItems() {
     return new Promise ((resolve, reject) => {
-        let publishedList = items.filter(product => product.published === true);
+        let publishedList = items.filter(product => product.published);
 
         if (publishedList.length < 1){
             reject('No published products were found.');
@@ -131,6 +242,7 @@ function getItemById(id)
 
 function addItem(itemData) 
 {
+    let currentDate, formattedDate;
     return new Promise ((resolve, reject) => {
         if (itemData.published === undefined){
             itemData.published = false;
@@ -138,6 +250,9 @@ function addItem(itemData)
         }
         else {
             itemData.published = true;
+            currentDate = new Date();
+            formattedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`;
+            itemData.postDate = formattedDate;
         }
 
         itemData.id = itemData.length + 1;
@@ -148,4 +263,19 @@ function addItem(itemData)
     });
 }
 
-module.exports = {initialize, getAllItems, getPublishedItems, getCategories, getItemsByCategory, getItemsByMinDate, getItemById, addItem};
+function getPublishedItemsByCategory(categoryNum)
+{
+    return new Promise ((resolve, reject) => {
+        let publishedCategory = items.filter(product => product.published === true && product.category == categoryNum);
+
+        if (publishedCategory.length < 1){
+            reject('No published products were found.');
+        }
+        else {
+            resolve(publishedCategory);
+            
+        }
+    });
+}
+
+module.exports = {initialize, getAllItems, getPublishedItems, getCategories, getItemsByCategory, getItemsByMinDate, getItemById, addItem, getPublishedItemsByCategory};
