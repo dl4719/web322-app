@@ -246,11 +246,15 @@ function addItem(itemData)
             itemData.published = false;
             
         }
-        itemData.published = true;
+        else {
+            itemData.published = true;
+        }
+        
         currentDate = new Date();
         formattedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`;
         itemData.postDate = formattedDate;
-        itemData.id = items[items.length].id + 1;
+        const newId = items.length ? items[items.length - 1].id + 1 : 1;
+        itemData.id = newId;
         items.push(itemData);
 
         resolve(itemData);
