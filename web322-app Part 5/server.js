@@ -19,6 +19,7 @@ cloudinary.config({
     secure: true
 });
 
+const mongoose = require('mongoose');
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
