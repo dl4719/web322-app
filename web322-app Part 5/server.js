@@ -1,5 +1,4 @@
-let services = require('./store-services.js');
-
+const services = require('./store-services.js');
 const express = require('express');
 const multer = require('multer');
 const streamifier = require('streamifier');
@@ -19,40 +18,40 @@ cloudinary.config({
     secure: true
 });
 
-const mongoose = require('mongoose');
-
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
-//app.set('views', './views');
 
-services.initialize()
-    .then(() => {
-        app.listen(HTTP_PORT, () => console.log(`Express http server listening on: ${HTTP_PORT}`));
-    })
-    .then(() => {
-        services.getAllItems()
-            .then(() => {
-            services.getPublishedItems();
-        })
-    })
-    .then (() => {
-        services.getCategories();
-    })
-    .catch((err) => {
+services.initialize().then(() => {
+        return app.listen(HTTP_PORT, () => console.log(`Express http server listening on: ${HTTP_PORT}`));
+    }).then(() => {
+        return services.getAllItems();
+    }).then(() => {
+        return services.getPublishedItems();
+    }).then (() => {
+        return services.getCategories();
+    }).catch((err) => {
         console.error(`An error has occurred: ${err}`);
     });
 
-    app.use(function(req,res,next){ 
+app.use(function(req,res,next){ 
 
-        let route = req.path.substring(1); 
-    
-        app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, "")); 
-    
-        app.locals.viewingCategory = req.query.category; 
-    
-        next(); 
-    
-    });
+    let route = req.path.substring(1); 
+
+    app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, "")); 
+
+    app.locals.viewingCategory = req.query.category; 
+
+    next(); 
+
+});
+
+const formatDate = (dateObj) => {
+    let year = dateObj.getFullYear();
+    let month = (dateObj.getMonth() + 1).toString();
+    let day = dateObj.getDate().toString();
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+};
+app.locals.formatDate = formatDate;
 
 /// Redirects the user to the About page.
 app.get('/', (req, res) => {
@@ -176,7 +175,7 @@ app.get('/items', (req, res) => {
                 res.render("items", {items: filteredList});
             })
             .catch((err) => {
-                res.render("posts", {message: err});
+                res.render("errors", {error: err});
             });
     }
     else if (postedDate) {
@@ -185,16 +184,21 @@ app.get('/items', (req, res) => {
                 res.render("items", {items: filteredPosts});
             })
             .catch((err) => {
-                res.render("posts", {message: err});
+                res.render("errors", {error: err});;
             });
     }
     else {
     services.getAllItems()
         .then((itemList) => {
-            res.render("items", {items: itemList});
+            if (itemList.length > 0) {
+                res.render("items", {items: itemList});
+            }
+            else {
+                res.render("errors", {error: err});
+            }
         })
         .catch((err) => {
-            res.render("posts", {message: err});
+            res.render("errors", {error: err});
         });
     }
 });
@@ -207,7 +211,7 @@ app.get('/item/value', (req, res) => {
             res.render(requestedItem);
         })
         .catch((err) => {
-            console.error(`An error has occurred: ${err}`);
+            res.render("errors", {error: err});
         });
 })
 
@@ -215,10 +219,12 @@ app.get('/item/value', (req, res) => {
 app.get('/categories', (req, res) => {
     services.getCategories()
         .then((categoryList) => {
+            console.log(categoryList);
             res.render("categories", {categoryItem: categoryList});
         })
         .catch((err) => {
-            res.render("posts", {message: err});
+            console.log(err);
+            res.render("errors", {error: err});
         });
 
 });
@@ -268,7 +274,7 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
             res.redirect('/items');
         })
         .catch((err) => {
-            console.log('An error has occurred when adding an item to the list.\nError msg: ', err);
+            res.render("errors", {error: err});
         });
     }
     
