@@ -149,13 +149,33 @@ function addItem(itemData)
         }
         itemData.postDate = new Date();
 
-        const itemToAdd = new Item(itemData);
+        Category.findById(itemData.category).then((category) => {
+            if (!category) {
+                reject("Invalid category.");
+                return;
+            }
 
-        itemToAdd.save().then(() => {
-            resolve(`Item has been added to the list.`);
+            // Dynamically set the ID based on the number of items
+            return Item.countDocuments();
+        }).then((count) => {
+            // Assign the new ID
+            itemData.id = count + 1;
+
+            // Create and save the new item
+            const itemToAdd = new Item(itemData);
+            return itemToAdd.save();
+        }).then(() => {
+            resolve("Item has been added to the list.");
         }).catch((err) => {
             reject(`Unable to add the item: ${err}`);
         });
+        // const itemToAdd = new Item(itemData);
+
+        // itemToAdd.save().then(() => {
+        //     resolve(`Item has been added to the list.`);
+        // }).catch((err) => {
+        //     reject(`Unable to add the item: ${err}`);
+        // });
     });
 }
 
