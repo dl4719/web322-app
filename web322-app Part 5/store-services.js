@@ -152,7 +152,6 @@ function addItem(itemData)
         Category.findById(itemData.category).then((category) => {
             if (!category) {
                 reject("Invalid category.");
-                return;
             }
 
             // Dynamically set the ID based on the number of items
