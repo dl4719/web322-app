@@ -20,7 +20,11 @@ let itemSchema = new Schema({
 let Item = mongoose.model('items', itemSchema);
 
 let categorySchema = new Schema({
-    id: Number,
+    id: {
+        type: Number,
+        required: true,
+        unique: true, // Ensures no duplicates
+    },
     category: String,
 })
 let Category = mongoose.model('categories', categorySchema);
@@ -158,7 +162,7 @@ function addItem(itemData)
 function getPublishedItemsByCategory(categoryNum)
 {
     return new Promise ((resolve, reject) => {
-        Items.find({published: true, category: categoryNum}).then((publishedItems) => {
+        Item.find({published: true, category: categoryNum}).then((publishedItems) => {
             if (publishedItems.length > 0){
                 resolve(publishedItems, `Retrieved list of items under the category number: ${categoryNum} that are published.`);
             }
@@ -171,4 +175,75 @@ function getPublishedItemsByCategory(categoryNum)
      });
 }
 
-module.exports = {initialize, getAllItems, getPublishedItems, getCategories, getItemsByCategory, getItemsByMinDate, getItemById, addItem, getPublishedItemsByCategory};
+function addCategory(categoryData)
+{
+    return new Promise((resolve, reject) => {
+        for (const property in categoryData){
+            if (categoryData[property] === ""){
+                categoryData[property] = null;
+            }
+        }
+        // Category.create(categoryData).then(() => {
+        //     resolve("Category created successfully!");
+        // }).catch((err) => {
+        //     console.error("Error creating category:", err);
+        //     reject("Unable to create category");
+        // });
+
+        Category.find()
+            .sort({ id: -1 })
+            .limit(1)
+            .then((result) => {
+                const nextId = result.length > 0 ? result[0].id + 1 : 1;
+
+                const newCategory = new Category({
+                    id: nextId,
+                    category: categoryData.category,
+                });
+
+                return newCategory.save();
+            })
+            .then(() => {
+                console.log("Successfully created a new category");
+                resolve("Category created successfully!");
+            })
+            .catch((err) => {
+                console.error("Error creating category:", err);
+                reject("Unable to create category");
+            });
+    });
+}
+
+function deleteCategoryById(id)
+{
+    return new Promise((resolve, reject) => {
+        Category.deleteOne({ _id: id }).then((rmvedCategory) => {
+            if (rmvedCategory.deletedCount === 1) {
+                resolve("Category successfully deleted!");
+            } else {
+                reject("Category not found or could not be deleted.");
+            }
+        }).catch((err) => {
+            console.error("Error deleting category:", err);
+            reject("Unable to delete category.");
+        });
+    });
+}
+
+function deletePostById(id)
+{
+    return new Promise((resolve, reject) => {
+        Item.deleteOne({ _id: id }).then((rmvedItem) => {  
+            if (rmvedItem.deletedCount === 1) {
+                resolve("Post successfully deleted!");
+            } else {
+                reject("Post not found or could not be deleted.");
+            }
+        }).catch((err) => {
+            console.error("Error deleting post:", err);
+            reject("Unable to delete post.");
+        });
+    });
+}
+
+module.exports = {initialize, getAllItems, getPublishedItems, getCategories, getItemsByCategory, getItemsByMinDate, getItemById, addItem, getPublishedItemsByCategory, addCategory, deleteCategoryById, deletePostById};
