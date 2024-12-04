@@ -140,7 +140,7 @@ function getItemById(itemID)
 function addItem(itemData) 
 {
     return new Promise((resolve, reject) => {
-        // itemData.published = itemData.published? true : false;
+        itemData.published = itemData.published? true : false;
 
         for (const property in itemData){
             if (itemData[property] === ""){
