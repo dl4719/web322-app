@@ -305,7 +305,7 @@ app.post('/categories/delete/:id', (req, res) => {
         res.redirect('/categories');
     }).catch((err) => {
         console.error(`Error deleting category with ID ${categoryId}: ${err}`);
-        res.status(500).send("Unable to Remove Category / Category not found");
+        res.render("errors", { message: "Unable to remove category" });
     });
 });
 
@@ -317,7 +317,7 @@ app.get('/Items/delete/:id', (req, res) => {
         res.redirect('/Items');
     }).catch((err) => {
         console.error(`Error deleting item with ID ${itemId}: ${err}`);
-        res.status(500).send("Unable to Remove Item / Item not found");
+        res.render("errors", { message: "Unable to remove item" });
     });
 });
 
