@@ -60,13 +60,16 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="category">Category:</label>
-                      <select class="form-control" name="category" id="category">
-                        <option value="1">Home, Garden</option>
-                        <option value="2">Electronics, Computers, Video Games</option>
-                        <option value="3">Clothing</option>
-                        <option value="4">Sports & Outdoors</option>
-                        <option value="5">Pets</option>
-                      </select>
+                      <% if (categories && categories.length > 0) { %>
+                        <select class="form-control" name="category" id="id">
+                          <option value="">Select Category</option>
+                          <% categories.forEach(category => { %>
+                            <option value="<%= category._id %>"><%= category.category %></option>
+                          <% }) %>
+                        </select>
+                      <% } else { %>
+                        <div>No Categories</div>
+                      <% } %>
                     </div>
                   </div>
                   <div class="col-md-6">

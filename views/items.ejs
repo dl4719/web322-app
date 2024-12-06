@@ -1,12 +1,12 @@
+<%- include('layouts/main', {page: '/items'}) %>
 <div class="row">
-
     <div class="col-md-12">
-
+        <% if (items.length > 0) { %>
         <h2>Items</h2>
+        <a href="/Items/add" class="btn btn-success pull-right">Add Post</a>
         
         <hr />
         <div class="table-responsive">
-            <%- include('layouts/main', {page: '/items'}) %>
             <table class="table">
                 <thead>
                     <tr>
@@ -38,9 +38,11 @@
         </div>
 
     </div>
-    <% if (!items || items.length === 0) { %>
-        <div class="col-md-12 text-center">
-            <strong><%= message %></strong>
+    <% } else { %>
+        <div class="text-center">
+            <h2>No results found</h2>
+            <p>Please try another search or add a new item.</p>
+            <a href="/Items/add" class="btn btn-primary">Add Item</a>
         </div>
     <% } %>
 </div>

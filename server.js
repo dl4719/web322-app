@@ -1,5 +1,4 @@
-let services = require('./store-services.js');
-
+const services = require('./store-services.js');
 const express = require('express');
 const multer = require('multer');
 const streamifier = require('streamifier');
@@ -19,39 +18,40 @@ cloudinary.config({
     secure: true
 });
 
-
+app.use(express.urlencoded({extended: true})); 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
-//app.set('views', './views');
 
-services.initialize()
-    .then(() => {
-        app.listen(HTTP_PORT, () => console.log(`Express http server listening on: ${HTTP_PORT}`));
-    })
-    .then(() => {
-        services.getAllItems()
-            .then(() => {
-            services.getPublishedItems();
-        })
-    })
-    .then (() => {
-        services.getCategories();
-    })
-    .catch((err) => {
+services.initialize().then(() => {
+        return app.listen(HTTP_PORT, () => console.log(`Express http server listening on: ${HTTP_PORT}`));
+    }).then(() => {
+        return services.getAllItems();
+    }).then(() => {
+        return services.getPublishedItems();
+    }).then (() => {
+        return services.getCategories();
+    }).catch((err) => {
         console.error(`An error has occurred: ${err}`);
     });
 
-    app.use(function(req,res,next){ 
+app.use(function(req,res,next){ 
 
-        let route = req.path.substring(1); 
-    
-        app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, "")); 
-    
-        app.locals.viewingCategory = req.query.category; 
-    
-        next(); 
-    
-    });
+    let route = req.path.substring(1); 
+
+    app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, "")); 
+
+    app.locals.viewingCategory = req.query.category; 
+
+    next(); 
+});
+
+const formatDate = (dateObj) => {
+    let year = dateObj.getFullYear();
+    let month = (dateObj.getMonth() + 1).toString();
+    let day = dateObj.getDate().toString();
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+};
+app.locals.formatDate = formatDate;
 
 /// Redirects the user to the About page.
 app.get('/', (req, res) => {
@@ -166,37 +166,39 @@ app.get('/about', (req, res) => {
 
 /// Items page
 app.get('/items', (req, res) => {
-    let categoryNum = parseInt(req.query.category);
-    let postedDate = req.query.minDate;
+    const categoryNum = parseInt(req.query.category);
+    const postedDate = req.query.minDate;
 
     if (categoryNum) {
         services.getItemsByCategory(categoryNum)
-            .then((filteredList) => {
-                res.render("items", {items: filteredList});
+            .then(filteredList => {
+                res.render("items", { items: filteredList || [] });
             })
-            .catch((err) => {
-                res.render("posts", {message: err});
+            .catch(err => {
+                console.error("Error fetching items by category:", err);
+                res.render("items", { items: [] });
             });
-    }
-    else if (postedDate) {
+    } else if (postedDate) {
         services.getItemsByMinDate(postedDate)
-            .then((filteredPosts) => {
-                res.render("items", {items: filteredPosts});
+            .then(filteredPosts => {
+                res.render("items", { items: filteredPosts || [] });
             })
-            .catch((err) => {
-                res.render("posts", {message: err});
+            .catch(err => {
+                console.error("Error fetching items by date:", err);
+                res.render("items", { items: [] });
             });
-    }
-    else {
-    services.getAllItems()
-        .then((itemList) => {
-            res.render("items", {items: itemList});
-        })
-        .catch((err) => {
-            res.render("posts", {message: err});
-        });
+    } else {
+        services.getAllItems()
+            .then(itemList => {
+                res.render("items", { items: itemList || [] });
+            })
+            .catch(err => {
+                console.error("Error fetching all items:", err);
+                res.render("items", { items: [] });
+            });
     }
 });
+
 
 app.get('/item/value', (req, res) => {
     let requestedProductID = parseInt (req.params.value);
@@ -206,26 +208,30 @@ app.get('/item/value', (req, res) => {
             res.render(requestedItem);
         })
         .catch((err) => {
-            console.error(`An error has occurred: ${err}`);
+            res.render("errors", {error: err});
         });
-})
+});
 
 /// Categories page
 app.get('/categories', (req, res) => {
     services.getCategories()
-        .then((categoryList) => {
-            res.render("categories", {categoryItem: categoryList});
+        .then(categoryList => {
+            // Ensure categoryList is always an array
+            res.render("categories", { categoryItem: categoryList || [] });
         })
-        .catch((err) => {
-            res.render("posts", {message: err});
+        .catch(err => {
+            console.error("Error fetching categories:", err);
+            res.render("categories", { categoryItem: [] }); // Pass an empty array on error
         });
-
 });
 
 /// Add item page
 app.get('/items/add', (req, res) => {
-    res.render('addItem');
-    
+    services.getCategories().then((data) => {
+        res.render('addItem', { categories: data });
+    }).catch(() => {
+        res.render('addItem', { categories: [] });
+    });
 });
 
 /// Post item
@@ -263,17 +269,59 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
         req.body.featureImage = imageUrl;
         
         services.addItem(req.body)
-        .then((newItem) => {
+        .then(() => {
             res.redirect('/items');
         })
         .catch((err) => {
-            console.log('An error has occurred when adding an item to the list.\nError msg: ', err);
+            res.render("errors", {error: err});
         });
     }
-    
+});
+
+/// Add a category
+app.get("/categories/add", (req, res) => {
+    res.render("addCategory");
+});
+
+/// Post a category
+app.post('/categories/add', (req, res) => {
+    processCategory();
+
+    function processCategory() {
+        services.addCategory(req.body).then(() => {
+            res.redirect('/categories'); 
+        }).catch((err) => {
+            console.error(`Error adding category: ${err}`);
+            res.render("errors", { message: "Unable to add category" });
+        });
+    }
+});
+
+/// Deletes/removes a category by catregory id
+app.post('/categories/delete/:id', (req, res) => {
+    const categoryId = req.params.id;
+
+    services.deleteCategoryById(categoryId).then(() => {
+        res.redirect('/categories');
+    }).catch((err) => {
+        console.error(`Error deleting category with ID ${categoryId}: ${err}`);
+        res.status(500).send("Unable to Remove Category / Category not found");
+    });
+});
+
+/// Deletes/removes an item by item id
+app.get('/Items/delete/:id', (req, res) => {
+    const itemId = req.params.id;
+
+    services.deletePostById(itemId).then(() => {
+        res.redirect('/Items');
+    }).catch((err) => {
+        console.error(`Error deleting item with ID ${itemId}: ${err}`);
+        res.status(500).send("Unable to Remove Item / Item not found");
+    });
 });
 
 /// 404 Error handler
 app.use((req, res, next) => {
-    res.status(404).send("404 - We're unable to find what you're looking for...");
-})
+    res.status(404).render("errors");
+});
