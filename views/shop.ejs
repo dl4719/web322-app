@@ -24,7 +24,7 @@
                 <strong>Price:</strong>
                 $ <%= data.item.price %><br />
                 <strong>Category:</strong>
-                <%= data.item.category %><br />
+                <%= data.item.category ? data.item.category.category : "No Category" %><br />
                 <strong>Last Updated:</strong>
                 <%= formatDate(data.item.postDate) %>
               </div>
