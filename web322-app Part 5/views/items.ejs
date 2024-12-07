@@ -27,10 +27,16 @@
                             <td>$<%= item.price %></td>
                             <td>
                                 <a href="/items?category=<%= item.category %>">
-                                    <%= item.category %>
+                                     <%= item.category ? item.category.category : "No Category" %>
                                 </a>
                             </td>
                             <td><%= item.published ? 'True' : 'False' %></td>
+
+                            <td>
+                                <form action="/Items/delete/<%= item._id %>" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger">Remove Post</button>
+                                </form>
+                            </td>
                         </tr>
                     <% }) %>
                 </tbody>

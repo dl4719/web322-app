@@ -299,20 +299,20 @@ app.post('/categories/add', (req, res) => {
 
 /// Deletes/removes a category by catregory id
 app.post('/categories/delete/:id', (req, res) => {
-    const categoryId = req.params.id;
-
+    
+    const categoryId = req.params.id; 
     services.deleteCategoryById(categoryId).then(() => {
-        res.redirect('/categories');
-    }).catch((err) => {
-        console.error(`Error deleting category with ID ${categoryId}: ${err}`);
-        res.render("errors", { message: "Unable to remove category" });
-    });
+            res.redirect("/categories");
+        }).catch((err) => {
+            console.error(`Error deleting category with ID ${categoryId}: ${err}`);
+            res.render("errors", {message: "Unable to delete category."});
+        });
 });
 
 /// Deletes/removes an item by item id
-app.get('/Items/delete/:id', (req, res) => {
-    const itemId = req.params.id;
+app.post('/Items/delete/:id', (req, res) => {
 
+    const itemId = req.params.id;
     services.deletePostById(itemId).then(() => {
         res.redirect('/Items');
     }).catch((err) => {

@@ -6,15 +6,27 @@ let Schema = mongoose.Schema;
 let itemSchema = new Schema({
     id: Number,
     body: String,
-    title: String,
-    postDate: Date,
+    title: {
+        type: String,
+        required: [true, "Title is required"],
+    },
+    postDate: {
+        type: Date,
+        default: Date.now,
+    },
     featureImage: String,
-    published: Boolean,
-    price: Number,
+    published: {
+        type: Boolean,
+        default: false,
+    },
+    price: {
+        type: Number,
+        required: [true, "Price is required"],
+    },
     category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'categories',
-    default: null,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'categories',
+        default: null,
     },
 });
 let Item = mongoose.model('items', itemSchema);
@@ -22,11 +34,13 @@ let Item = mongoose.model('items', itemSchema);
 let categorySchema = new Schema({
     id: {
         type: Number,
-        required: true,
-        unique: true, // Ensures no duplicates
+        unique: true,
     },
-    category: String,
-})
+    category: {
+        type: String,
+        required: [true, "Category name is required"],
+    },
+});
 let Category = mongoose.model('categories', categorySchema);
 
 function initialize() {
@@ -43,7 +57,7 @@ function initialize() {
 
 function getAllItems(){
     return new Promise ((resolve, reject) => {
-        Item.find({}).then((listOfItems) => {
+        Item.find({}).populate('category').then((listOfItems) => {
             if (listOfItems.length != 0) {
                 resolve(listOfItems, `The list of item(s) was retrieved.`);
             }
@@ -59,16 +73,19 @@ function getAllItems(){
 
 function getPublishedItems() {
     return new Promise((resolve, reject) => {
-        Item.find({published: true}).then((publishedList) => {
-            if (publishedList.length > 0) {
-                resolve(published, `Retrieved list of published items.`);
-            }
-            else {
-                reject(`No items were published yet.`);
-            }
-        }).catch((err) => {
-            reject(`There was a problem finding the list of published items: ${err}`);
-        });
+        Item.find({ published: true }) // Find only published items
+            .populate('category') // Populate the category field with the full Category document
+            .exec() // Execute the query
+            .then((publishedList) => {
+                if (publishedList.length > 0) {
+                    resolve(publishedList); // Resolve with the populated list
+                } else {
+                    reject("No items were published yet."); // Reject if no items are found
+                }
+            })
+            .catch((err) => {
+                reject(`There was a problem finding the list of published items: ${err}`); // Handle errors
+            });
     });
 }
 
@@ -236,6 +253,12 @@ function addCategory(categoryData)
 function deleteCategoryById(id)
 {
     return new Promise((resolve, reject) => {
+
+        if (!id) {
+            reject("Invalid category ID.");
+            return;
+        }
+        
         Category.deleteOne({ _id: id }).then((rmvedCategory) => {
             if (rmvedCategory.deletedCount === 1) {
                 resolve("Category successfully deleted!");
@@ -252,6 +275,12 @@ function deleteCategoryById(id)
 function deletePostById(id)
 {
     return new Promise((resolve, reject) => {
+
+        if (!id) {
+            reject("Invalid category ID.");
+            return;
+        }
+        
         Item.deleteOne({ _id: id }).then((rmvedItem) => {  
             if (rmvedItem.deletedCount === 1) {
                 resolve("Post successfully deleted!");
