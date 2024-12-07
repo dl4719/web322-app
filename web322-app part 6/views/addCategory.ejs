@@ -1,0 +1,31 @@
+<%- include('layouts/main', {page: '/categories/add'}) %>
+<div class="row">
+  <aside class="col-md-3">
+      <h2>Coming soon</h2>
+      <p>Fun things are happening behind the scenes...</p>
+  </aside>
+  <section class="main col-md-9">
+      <article>
+          <h2>Add Category</h2>
+          <form method="post" action="/categories/add">
+              <fieldset>
+                <label for="category">Category:</label>
+                <input 
+                    type="text" 
+                    id="category" 
+                    name="category" 
+                    class="form-control" 
+                    placeholder="Enter category" 
+                    required 
+                    autofocus>
+              </fieldset>
+              <hr />
+              <input
+                type="submit"
+                class="btn btn-primary pull-right"
+                value="Add Category"
+              /><br /><br /><br />
+            </form>
+      </article>
+  </section>
+</div>

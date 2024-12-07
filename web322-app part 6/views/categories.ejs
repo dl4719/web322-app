@@ -1,0 +1,49 @@
+<%- include('layouts/main', {page: '/categories'}) %>
+<div class="row">
+    <div class="col-md-12">
+        <% if (categoryItem.length > 0) { %>
+        <h2>Categories</h2>
+        <hr />
+        <a href="/categories/add" class="btn btn-success pull-right">Add Category</a> 
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category ID</th>
+                        <th>Category Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% categoryItem.forEach(category => { %>
+                        <tr>
+                            <td>
+                                <a href="/items?category=<%= category.id %>">
+                                    <%= category.id %>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="/items?category=<%= category.category %>">
+                                    <%= category.category %>
+                                </a>
+                            </td>
+                            <td>
+                                <form action="/categories/delete/<%= category._id %>" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <% } else { %>
+        <div class="text-center">
+            <h2>No categories available</h2>
+            <p>Please check back later or contact support.</p>
+            <a href="/categories/add" class="btn btn-success pull-right">
+                Add Category
+            </a> 
+        </div>
+    <% } %>
+</div>
