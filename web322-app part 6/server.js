@@ -378,7 +378,7 @@ app.post("/login", (req, res) => {
 
 
 app.get("/register", (req, res) => {
-    res.render("register", {message: ""});
+    res.render("register", {successMessage: null, errorMessage: null, userName: ""});
 });
 
 app.post("/register", (req, res) => {

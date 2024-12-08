@@ -6,6 +6,7 @@
     <title>Register</title>
     <!-- Add your CSS links here (e.g., Bootstrap) -->
 </head>
+<%- include('layouts/main', {page: '/register'}) %>
 <body>
     <div class="container">
         <!-- Show success message if present -->
@@ -32,7 +33,7 @@
                         id="userName" 
                         name="userName" 
                         placeholder="User Name" 
-                        value="<%= userName || '' %>" <!-- Pre-fill userName if available -->
+                        value="<%= userName || '' %>"
                         required
                     />
                 </div>
