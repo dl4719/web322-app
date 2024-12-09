@@ -381,20 +381,28 @@ app.get("/register", (req, res) => {
     res.render("register", {successMessage: null, errorMessage: null, userName: ""});
 });
 
-app.post("/register", (req, res) => {
-    let userData = req.body;
-
-    authData.registerUser(userData).then(() => {
-        res.render("register", {successMessage: "User created"});
-    })
-    .catch((err) => {
-        res.render("register", {errorMessage: err, userName: req.body.userName});
-    });
-});
+app.post("/register", async (req, res) => {
+    try {
+      const userData = req.body;
+  
+      // Attempt to register the user
+      await authData.registerUser(userData);
+  
+      // On success, render the login page with a success message
+      return res.render("login", { successMessage: "User created", errorMessage: null, userName: req.body.userName});
+    } catch (err) {
+      // On failure, render the register page with an error message
+      return res.render("register", {
+        successMessage: null,
+        errorMessage: err,
+        userName: req.body.userName || "",
+      });
+    }
+  });
 
 
 app.get("/logout", (req, res) => {
-    req.session.reset();
+    req.userLogin.reset();
     res.redirect('/');
 });
 

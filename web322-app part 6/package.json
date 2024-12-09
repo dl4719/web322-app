@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/dl4719/WEB322#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "bootstrap": "^5.3.3",
     "client-sessions": "^0.8.0",
     "cloudinary": "^2.5.1",

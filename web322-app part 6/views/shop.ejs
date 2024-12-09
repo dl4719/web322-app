@@ -79,7 +79,7 @@
   
       <ul class="list-group">
         <% data.items.forEach(item => { %> 
-        <a href="/shop/<%= item.id %>?category=<%= item.category %>" class="list-group-item">
+        <a href="/shop/<%= item.id %>" class="list-group-item">
             <%= item.title %>
         </a>
         <% }) %>
