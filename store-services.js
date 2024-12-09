@@ -138,21 +138,23 @@ function getItemsByMinDate(minDateStr)
      });
 }
 
-function getItemById(itemID)
-{
-    return new Promise ((resolve, reject) => {
-        Item.find({id: itemID}).then((uniqueID) => {
-            if (uniqueID){
-                resolve(uniqueID, `Found item with the unique id: ${itemID}`);
-            }
-            else {
-                reject(`No items with the id: ${itemID} were found.`);
-            }
-        }).catch((err) => {
-            reject(`Problem fetching data: ${err}`);
-        });
-     });
+function getItemById(itemID) {
+    return new Promise((resolve, reject) => {
+        // Use findOne to retrieve a single item by id
+        Item.findOne({ id: itemID })
+            .then((item) => {
+                if (item) {
+                    resolve(item); // Return the found item
+                } else {
+                    reject(`No items with the id: ${itemID} were found.`);
+                }
+            })
+            .catch((err) => {
+                reject(`Problem fetching data: ${err}`);
+            });
+    });
 }
+
 
 function addItem(itemData) 
 {
@@ -185,30 +187,31 @@ function addItem(itemData)
         }).catch((err) => {
             reject(`Unable to add the item: ${err}`);
         });
-        // const itemToAdd = new Item(itemData);
-
-        // itemToAdd.save().then(() => {
-        //     resolve(`Item has been added to the list.`);
-        // }).catch((err) => {
-        //     reject(`Unable to add the item: ${err}`);
-        // });
     });
 }
 
-function getPublishedItemsByCategory(categoryNum)
-{
-    return new Promise ((resolve, reject) => {
-        Item.find({published: true, category: categoryNum}).then((publishedItems) => {
-            if (publishedItems.length > 0){
-                resolve(publishedItems, `Retrieved list of items under the category number: ${categoryNum} that are published.`);
+function getPublishedItemsByCategory(categoryNum) {
+    return new Promise((resolve, reject) => {
+        // Find the category matching the provided categoryNum
+        Category.findOne({ id: categoryNum }).then((category) => {
+            if (!category) {
+                return reject(`Category with id ${categoryNum} does not exist.`);
             }
-            else {
-                reject(`There were no published items found under the category number: ${categoryNum}.`);
-            }
+
+            // Find published items that belong to the category
+            Item.find({ published: true, category: category._id }).then((publishedItems) => {
+                if (publishedItems.length > 0) {
+                    resolve(publishedItems);
+                } else {
+                    reject(`There were no published items found under the category number: ${categoryNum}.`);
+                }
+            }).catch((err) => {
+                reject(`There was a problem retrieving items: ${err}`);
+            });
         }).catch((err) => {
-            reject(`There was a problem retrieving data: ${err}`);
+            reject(`There was a problem retrieving the category: ${err}`);
         });
-     });
+    });
 }
 
 function addCategory(categoryData)
@@ -219,12 +222,6 @@ function addCategory(categoryData)
                 categoryData[property] = null;
             }
         }
-        // Category.create(categoryData).then(() => {
-        //     resolve("Category created successfully!");
-        // }).catch((err) => {
-        //     console.error("Error creating category:", err);
-        //     reject("Unable to create category");
-        // });
 
         Category.find()
             .sort({ id: -1 })

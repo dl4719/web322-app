@@ -1,4 +1,7 @@
 const services = require('./store-services.js');
+const authData = require('./auth-service.js');
+
+const clientSessions = require("client-sessions");
 const express = require('express');
 const multer = require('multer');
 const streamifier = require('streamifier');
@@ -18,18 +21,40 @@ cloudinary.config({
     secure: true
 });
 
+app.use(
+    clientSessions({
+      cookieName: 'userLogin', // this is the object name that will be added to 'req'
+      secret: 'o6LjQ5EVNC28ZgK64hDELM18ScpFQr', // this should be a long un-guessable string.
+      duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
+      activeDuration: 1000 * 60, // the session will be extended by this many ms each request (1 minute)
+    })
+  );
+
 app.use(express.urlencoded({extended: true})); 
 app.use(express.static('public'));
+app.use(function(req, res, next) { 
+    res.locals.userLogin = req.userLogin; 
+    next(); 
+  }); 
+
+  function ensureLogin(req, res, next) {
+    if (!req.userLogin.user) {
+      res.redirect('/login');
+    } else {
+      next();
+    }
+  }
+
 app.set('view engine', 'ejs');
 
-services.initialize().then(() => {
+services.initialize().then(authData.initialize()).then(() => {
         return app.listen(HTTP_PORT, () => console.log(`Express http server listening on: ${HTTP_PORT}`));
-    }).then(() => {
-        return services.getAllItems();
-    }).then(() => {
-        return services.getPublishedItems();
-    }).then (() => {
-        return services.getCategories();
+    // }).then(() => {
+    //     return services.getAllItems();
+    // }).then(() => {
+    //     return services.getPublishedItems();
+    // }).then (() => {
+    //     return services.getCategories();
     }).catch((err) => {
         console.error(`An error has occurred: ${err}`);
     });
@@ -165,7 +190,7 @@ app.get('/about', (req, res) => {
 });
 
 /// Items page
-app.get('/items', (req, res) => {
+app.get('/items', ensureLogin, (req, res) => {
     const categoryNum = parseInt(req.query.category);
     const postedDate = req.query.minDate;
 
@@ -200,7 +225,7 @@ app.get('/items', (req, res) => {
 });
 
 
-app.get('/item/value', (req, res) => {
+app.get('/item/value', ensureLogin, (req, res) => {
     let requestedProductID = parseInt (req.params.value);
 
     services.getItemById(requestedProductID)
@@ -212,21 +237,8 @@ app.get('/item/value', (req, res) => {
         });
 });
 
-/// Categories page
-app.get('/categories', (req, res) => {
-    services.getCategories()
-        .then(categoryList => {
-            // Ensure categoryList is always an array
-            res.render("categories", { categoryItem: categoryList || [] });
-        })
-        .catch(err => {
-            console.error("Error fetching categories:", err);
-            res.render("categories", { categoryItem: [] }); // Pass an empty array on error
-        });
-});
-
 /// Add item page
-app.get('/items/add', (req, res) => {
+app.get('/items/add', ensureLogin, (req, res) => {
     services.getCategories().then((data) => {
         res.render('addItem', { categories: data });
     }).catch(() => {
@@ -235,7 +247,7 @@ app.get('/items/add', (req, res) => {
 });
 
 /// Post item
-app.post('/items/add', upload.single("featureImage"), (req, res) => {
+app.post('/items/add', ensureLogin, upload.single("featureImage"), (req, res) => {
     if(req.file){
         let streamUpload = (req) => {
             return new Promise((resolve, reject) => {
@@ -278,13 +290,38 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
     }
 });
 
+/// Deletes/removes an item by item id
+app.post('/Items/delete/:id', ensureLogin, (req, res) => {
+
+    const itemId = req.params.id;
+    services.deletePostById(itemId).then(() => {
+        res.redirect('/Items');
+    }).catch((err) => {
+        console.error(`Error deleting item with ID ${itemId}: ${err}`);
+        res.render("errors", { message: "Unable to remove item" });
+    });
+});
+
+/// Categories page
+app.get('/categories', ensureLogin, (req, res) => {
+    services.getCategories()
+        .then(categoryList => {
+            // Ensure categoryList is always an array
+            res.render("categories", { categoryItem: categoryList || [] });
+        })
+        .catch(err => {
+            console.error("Error fetching categories:", err);
+            res.render("categories", { categoryItem: [] }); // Pass an empty array on error
+        });
+});
+
 /// Add a category
-app.get("/categories/add", (req, res) => {
+app.get("/categories/add", ensureLogin, (req, res) => {
     res.render("addCategory");
 });
 
 /// Post a category
-app.post('/categories/add', (req, res) => {
+app.post('/categories/add', ensureLogin, (req, res) => {
     processCategory();
 
     function processCategory() {
@@ -298,7 +335,7 @@ app.post('/categories/add', (req, res) => {
 });
 
 /// Deletes/removes a category by catregory id
-app.post('/categories/delete/:id', (req, res) => {
+app.post('/categories/delete/:id', ensureLogin, (req, res) => {
     
     const categoryId = req.params.id; 
     services.deleteCategoryById(categoryId).then(() => {
@@ -309,16 +346,68 @@ app.post('/categories/delete/:id', (req, res) => {
         });
 });
 
-/// Deletes/removes an item by item id
-app.post('/Items/delete/:id', (req, res) => {
+/// User authentication and authorization routes
+app.get("/login", (req, res) => {
+    res.render("login", {errorMessage: null, userName: ""}); 
+});
 
-    const itemId = req.params.id;
-    services.deletePostById(itemId).then(() => {
-        res.redirect('/Items');
-    }).catch((err) => {
-        console.error(`Error deleting item with ID ${itemId}: ${err}`);
-        res.render("errors", { message: "Unable to remove item" });
+app.post("/login", (req, res) => {
+    req.body.userAgent = req.get('User-Agent');
+
+    let userData = req.body;
+    
+    authData.checkUser(userData).then((user) => { 
+
+        req.userLogin.user = { 
+    
+            userName: user.userName,
+    
+            email: user.email,
+    
+            loginHistory: user.loginHistory, 
+    
+        }
+        res.redirect('/items'); 
+    
+    })
+    .catch((err) => {
+        res.render("login", {errorMessage: err, userName: req.body.userName});
     });
+});
+
+
+
+app.get("/register", (req, res) => {
+    res.render("register", {successMessage: null, errorMessage: null, userName: ""});
+});
+
+app.post("/register", async (req, res) => {
+    try {
+      const userData = req.body;
+  
+      // Attempt to register the user
+      await authData.registerUser(userData);
+  
+      // On success, render the login page with a success message
+      return res.render("login", { successMessage: "User created", errorMessage: null, userName: req.body.userName});
+    } catch (err) {
+      // On failure, render the register page with an error message
+      return res.render("register", {
+        successMessage: null,
+        errorMessage: err,
+        userName: req.body.userName || "",
+      });
+    }
+  });
+
+
+app.get("/logout", (req, res) => {
+    req.userLogin.reset();
+    res.redirect('/');
+});
+
+app.get("/userHistory", ensureLogin, (req, res) => {
+   res.render("userHistory") ;
 });
 
 /// 404 Error handler
