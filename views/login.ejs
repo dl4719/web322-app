@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Add your CSS links here, e.g., Bootstrap -->
+</head>
+<%- include('layouts/main', {page: '/login'}) %>
+<body>
+    <div class="container">
+        <!-- Error message (if any) -->
+        <% if (errorMessage) { %>
+            <div class="alert alert-danger">
+                <strong>Error:</strong> <%= errorMessage %>
+            </div>
+        <% } %>
+
+        <!-- Login form -->
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <label for="userName">User Name</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="userName" 
+                    name="userName" 
+                    placeholder="User Name" 
+                    value="<%= userName || '' %>"
+                    required
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    class="form-control" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Password" 
+                    required
+                />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+
+    <!-- Add your JS links here -->
+</body>
+</html>

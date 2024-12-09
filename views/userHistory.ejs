@@ -1,0 +1,27 @@
+<%- include('layouts/main', {page: '/userHistory'}) %>
+    <div class="container">
+        <h2><%= userLogin.user.userName %> (<%= userLogin.user.email %>) History</h2>
+
+        <!-- Check if the user has loginHistory data -->
+        <% if (userLogin.user.loginHistory && userLogin.user.loginHistory.length > 0) { %>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Login Date/Time</th>
+                        <th>Client Information</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% userLogin.user.loginHistory.forEach(function(entry) { %>
+                        <tr>
+                            <td><%= entry.dateTime %></td>
+                            <td><%= entry.userAgent %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No login history available.</p>
+        <% } %>
+    </div>
+</html>
